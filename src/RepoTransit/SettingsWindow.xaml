@@ -1,0 +1,58 @@
+<Window x:Class="RepoTransit.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="账号与仓库设置 · 仓渡" Width="820" Height="620" MinWidth="700" MinHeight="520" WindowStartupLocation="CenterOwner"
+        Background="#F5F7FA" FontFamily="Microsoft YaHei UI" FontSize="13">
+    <Window.Resources>
+        <Style TargetType="Button"><Setter Property="Padding" Value="12,7"/><Setter Property="Margin" Value="0,0,8,0"/></Style>
+        <Style TargetType="TextBox"><Setter Property="Margin" Value="0,3,0,10"/><Setter Property="MinHeight" Value="30"/></Style>
+    </Window.Resources>
+    <Grid Margin="20">
+        <TabControl>
+            <TabItem Header="账号与授权">
+                <Grid Margin="12"><Grid.ColumnDefinitions><ColumnDefinition Width="240"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <DockPanel Grid.Column="0" Margin="0,0,18,0">
+                        <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0"><Button x:Name="NewGithubButton" Content="新增 GitHub 账号" Click="NewGithub_Click" Margin="0,0,0,8"/><Button x:Name="NewGiteeButton" Content="新增 Gitee 账号" Click="NewGitee_Click" Margin="0"/></StackPanel>
+                        <ListBox x:Name="AccountsList" SelectionChanged="AccountsList_SelectionChanged"/>
+                    </DockPanel>
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="账号配置" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                            <TextBlock x:Name="AccountPlatform" FontWeight="SemiBold"/>
+                            <TextBlock Text="本地显示名称"/><TextBox x:Name="AccountName"/>
+                            <TextBlock Text="应用 Client ID（需在平台创建自己的 OAuth 应用）"/><TextBox x:Name="ClientId"/>
+                            <TextBlock Text="Gitee Client Secret（仅首次授权或重新授权时填写）"/><PasswordBox x:Name="ClientSecret" Margin="0,3,0,10" MinHeight="30"/>
+                            <TextBlock Text="Gitee 回调端口（应用回调地址填写 http://127.0.0.1:47831/callback）" TextWrapping="Wrap"/><TextBox x:Name="CallbackPort" Text="47831"/>
+                            <TextBlock x:Name="AccountStatus" Foreground="#475569" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                            <WrapPanel>
+                                <Button x:Name="AuthorizeButton" Content="浏览器授权 / 重新授权" Click="Authorize_Click"/>
+                                <Button x:Name="CancelAuthButton" Content="取消授权" Click="CancelAuth_Click" IsEnabled="False"/>
+                                <Button Content="保存名称" Click="SaveAccountName_Click"/>
+                                <Button Content="断开本机授权" Click="Disconnect_Click"/>
+                            </WrapPanel>
+                            <TextBlock Text="GitHub 需在 OAuth 应用设置中启用 Device Flow。Gitee 需注册第三方应用并设置与此处一致的回调地址。" TextWrapping="Wrap" Foreground="#64748B" Margin="0,20,0,8"/>
+                            <WrapPanel><Button Content="打开 GitHub OAuth 应用设置" Click="GithubApps_Click"/><Button Content="打开 Gitee 第三方应用设置" Click="GiteeApps_Click"/></WrapPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="目标仓库">
+                <Grid Margin="12"><Grid.ColumnDefinitions><ColumnDefinition Width="240"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <DockPanel Grid.Column="0" Margin="0,0,18,0">
+                        <Button DockPanel.Dock="Bottom" Content="新建仓库配置" Click="NewRepo_Click" Margin="0,12,0,0"/>
+                        <ListBox x:Name="RepositoriesList" SelectionChanged="RepositoriesList_SelectionChanged"/>
+                    </DockPanel>
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"><StackPanel>
+                        <TextBlock Text="仓库配置" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <TextBlock Text="使用账号"/><ComboBox x:Name="RepoAccount" Margin="0,3,0,10" MinHeight="30"/>
+                        <TextBlock Text="仓库拥有者 / 组织"/><TextBox x:Name="RepoOwner"/>
+                        <TextBlock Text="仓库名称"/><TextBox x:Name="RepoName"/>
+                        <TextBlock Text="分支"/><TextBox x:Name="RepoBranch" Text="main"/>
+                        <TextBlock Text="本地显示名称（可留空）"/><TextBox x:Name="RepoDisplayName"/>
+                        <TextBlock x:Name="RepoStatus" TextWrapping="Wrap" Foreground="#475569" Margin="0,4,0,12"/>
+                        <WrapPanel><Button Content="验证并保存" Click="SaveRepo_Click"/><Button Content="设为默认" Click="SetDefault_Click"/><Button Content="删除配置" Click="RemoveRepo_Click"/></WrapPanel>
+                        <TextBlock Text="仅支持已有私有仓库。验证会检查仓库和目标分支是否可访问；真正的写入权限也会在上传时由平台确认。" TextWrapping="Wrap" Foreground="#64748B" Margin="0,20,0,0"/>
+                    </StackPanel></ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
