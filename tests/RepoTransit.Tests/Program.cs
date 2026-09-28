@@ -5,6 +5,18 @@ using System.Text;
 using System.Text.Json;
 
 var failures = new List<string>();
+await Check("单实例互斥与释放", () =>
+{
+    var name = $@"Local\RepoTransit.Test.{Guid.NewGuid():N}";
+    using var first = SingleInstanceGate.TryAcquire(name);
+    True(first is not null, "首次启动未取得互斥锁");
+    using var second = SingleInstanceGate.TryAcquire(name);
+    True(second is null, "第二次启动取得了互斥锁");
+    first!.Dispose();
+    using var third = SingleInstanceGate.TryAcquire(name);
+    True(third is not null, "首次实例退出后仍无法启动");
+    return Task.CompletedTask;
+});
 await Check("命名与年月目录", () =>
 {
     var time = new DateTimeOffset(2026, 9, 24, 15, 30, 12, 345, TimeSpan.FromHours(8));
@@ -189,7 +201,7 @@ await Check("到期令牌刷新并保存新凭据", async () =>
     }
 });
 if (failures.Count > 0) { Console.Error.WriteLine(string.Join(Environment.NewLine, failures)); return 1; }
-Console.WriteLine("全部 8 组检查通过。");
+Console.WriteLine("全部 9 组检查通过。");
 return 0;
 
 async Task Check(string name, Func<Task> test)

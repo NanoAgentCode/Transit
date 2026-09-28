@@ -14,6 +14,7 @@ GitHub Actions 在 Windows 运行构建、行为检查和发布打包，工作�
 | `src/RepoTransit.Core/Platforms` | 平台仓库 API 接口、GitHub/Gitee 适配器及 HTTP 错误映射 |
 | `src/RepoTransit.Core/Application` | 凭据续期、账号管理、仓库管理、上传协调及对象装配 |
 | `src/RepoTransit` | 主窗口、设置窗口和仅用于界面绑定的上传队列状态 |
+| `src/RepoTransit.Core/Application/SingleInstanceGate.cs` | 启动时获取系统级互斥锁，退出时释放 |
 | `tests/RepoTransit.Tests` | 无真实凭据的规则、存储、授权回调、平台请求及服务检查 |
 
 ## 调用路径
@@ -23,6 +24,8 @@ GitHub Actions 在 Windows 运行构建、行为检查和发布打包，工作�
 `设置窗口 → AccountManager` 保存授权后的账号与凭据；`设置窗口 → RepositoryManager → IRepositoryClient` 验证和保存目标仓库。两个窗口共享 `AppServices` 中的服务实例。更换平台接口实现时，优先只改对应适配器和其请求测试。
 
 界面颜色与控件样式集中在 `src/RepoTransit/App.xaml`；主窗口和设置窗口只保留各自的布局。应用图标源文件位于 `src/RepoTransit/Assets/RepoTransit.svg`，运行同目录的 `GenerateIcon.ps1` 可重新生成用于窗口和可执行文件的 `.ico`。
+
+`App` 在创建主窗口前获取机器范围的命名互斥锁。未获取到锁时，尝试唤起同一路径的已有窗口并结束新进程；正常退出时释放锁。
 
 ## 约束
 

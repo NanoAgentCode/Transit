@@ -21,6 +21,8 @@ dotnet publish src/RepoTransit/RepoTransit.csproj -c Release -r win-x64 --self-c
 
 独立版本启动文件为 `publish/RepoTransit.exe`。构建输出与本地凭据不会提交到仓库。
 
+同一台电脑一次只运行一个仓渡实例。再次启动时，程序会尝试将已打开的窗口切到前台，然后退出新进程。
+
 ## 首次配置
 
 1. 打开“账号与仓库设置”，新增 GitHub 或 Gitee 账号。
