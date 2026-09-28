@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RepoTransit.Core\RepoTransit.Core.csproj" />
     <Resource Include="Assets\RepoTransit.ico" />
+    <Using Remove="System.Windows.Forms" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -11,6 +12,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>Assets\RepoTransit.ico</ApplicationIcon>
   </PropertyGroup>
 

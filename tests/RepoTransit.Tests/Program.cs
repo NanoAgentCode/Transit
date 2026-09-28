@@ -12,6 +12,12 @@ await Check("单实例互斥与释放", () =>
     True(first is not null, "首次启动未取得互斥锁");
     using var second = SingleInstanceGate.TryAcquire(name);
     True(second is null, "第二次启动取得了互斥锁");
+    using var activated = new ManualResetEventSlim();
+    using (var subscription = first!.OnActivation(() => activated.Set()))
+    {
+        True(SingleInstanceGate.SignalExisting(name), "第二次启动未能通知原实例");
+        True(activated.Wait(TimeSpan.FromSeconds(2)), "原实例未收到唤醒信号");
+    }
     first!.Dispose();
     using var third = SingleInstanceGate.TryAcquire(name);
     True(third is not null, "首次实例退出后仍无法启动");

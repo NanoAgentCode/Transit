@@ -46,7 +46,7 @@
 
 **学习目标**：理解 XAML 样式、事件处理、界面状态和应用生命周期。
 
-阅读 `App.xaml`、`MainWindow.xaml`、`MainWindow.xaml.cs`、`SettingsWindow.xaml.cs` 与 `UploadItem.cs`。跟踪拖拽事件如何加入队列、上传后如何更新状态、失败重试为何使用原目标。阅读 `SingleInstanceGate.cs` 和 `App.xaml.cs`，连续启动程序两次，确认第二个进程退出。
+阅读 `App.xaml`、`MainWindow.xaml`、`MainWindow.xaml.cs`、`SettingsWindow.xaml.cs` 与 `UploadItem.cs`。跟踪拖拽事件如何加入队列、上传后如何更新状态、失败重试为何使用原目标。阅读 `SingleInstanceGate.cs` 和 `App.xaml.cs`，验证最小化进入托盘、托盘恢复，以及窗口隐藏时再次启动只唤醒原实例。
 
 **完成标志**：能在不改业务服务的前提下调整一个界面文案或布局，并确认上传流程仍正常。
 

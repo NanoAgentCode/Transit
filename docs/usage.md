@@ -1,5 +1,9 @@
 # 使用与验证
 
+## 系统托盘
+
+启动时会显示主窗口和托盘图标。最小化或点击窗口关闭按钮后，程序继续在托盘运行；双击图标或通过右键菜单的“打开仓渡”恢复窗口。需要真正结束程序时，在托盘右键菜单选择“退出”。窗口隐藏期间再次启动仓渡，也会唤起已有窗口，不会创建第二个实例。
+
 ## GitHub 授权
 
 1. 登录 GitHub，打开 [Developer settings → OAuth apps](https://github.com/settings/developers)，点击 **New OAuth App**（首次可能显示 **Register a new application**）。
