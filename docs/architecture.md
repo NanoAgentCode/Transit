@@ -22,6 +22,8 @@ GitHub Actions 在 Windows 运行构建、行为检查和发布打包，工作�
 
 `设置窗口 → AccountManager` 保存授权后的账号与凭据；`设置窗口 → RepositoryManager → IRepositoryClient` 验证和保存目标仓库。两个窗口共享 `AppServices` 中的服务实例。更换平台接口实现时，优先只改对应适配器和其请求测试。
 
+界面颜色与控件样式集中在 `src/RepoTransit/App.xaml`；主窗口和设置窗口只保留各自的布局。应用图标源文件位于 `src/RepoTransit/Assets/RepoTransit.svg`，运行同目录的 `GenerateIcon.ps1` 可重新生成用于窗口和可执行文件的 `.ico`。
+
 ## 约束
 
 - 非敏感配置在 `%APPDATA%/RepoTransit/config.json`；访问令牌、刷新令牌和 Gitee Client Secret 在 Windows 凭据管理器。日志和错误提示不得输出秘密。

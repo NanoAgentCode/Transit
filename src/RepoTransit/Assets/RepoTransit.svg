@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="RepoTransit app icon">
+  <rect x="16" y="16" width="224" height="224" rx="48" fill="#0067C0"/>
+  <path d="M74 50h84l28 28v126H74z" fill="#fff"/>
+  <path d="M158 50v28h28z" fill="#B9DDF6"/>
+  <path d="M96 157l57-53m-27-1 28 1-4 29" fill="none" stroke="#0067C0" stroke-width="16"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

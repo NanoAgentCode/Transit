@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RepoTransit.Core\RepoTransit.Core.csproj" />
+    <Resource Include="Assets\RepoTransit.ico" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -10,6 +11,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\RepoTransit.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>
