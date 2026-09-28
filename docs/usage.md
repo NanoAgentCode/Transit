@@ -2,7 +2,13 @@
 
 ## GitHub 授权
 
-在 GitHub 的 Developer settings 中创建 OAuth App，启用 Device Flow。客户端中填写 Client ID 后点击“浏览器授权”。浏览器页面输入客户端展示的一次性验证码并确认授权。客户端仅保存返回的访问令牌及刷新令牌，不保存 GitHub 密码。
+1. 登录 GitHub，打开 [Developer settings → OAuth apps](https://github.com/settings/developers)，点击 **New OAuth App**（首次可能显示 **Register a new application**）。
+2. 填写应用名称（例如 `RepoTransit`）、Homepage URL（例如项目仓库主页），并在 Authorization callback URL 填入 `http://127.0.0.1/`。仓渡使用设备授权，此回调地址不会在授权时使用。
+3. 勾选 **Enable Device Flow**，点击 **Register application**。保留默认的 **Expire user access tokens** 设置即可；仓渡支持设备授权产生的令牌刷新。
+4. 在应用页面复制 **Client ID**，填入仓渡“账号与仓库设置”中的 GitHub 账号，点击授权。设备授权不需要填写 GitHub Client Secret。
+5. 客户端会打开授权页并复制一次性验证码。在浏览器输入验证码、确认授权，返回客户端等待完成。
+
+仓渡申请 `repo` 权限，用于访问私有仓库；选择一个上传目标不会缩小令牌的权限范围。客户端只在 Windows 凭据管理器保存返回的令牌，不保存 GitHub 密码。详见 [GitHub 创建 OAuth App](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app)和[设备授权说明](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)。
 
 ## Gitee 授权
 
