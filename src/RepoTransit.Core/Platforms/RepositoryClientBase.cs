@@ -6,38 +6,32 @@ using System.Text.Json;
 
 namespace RepoTransit;
 
-public sealed class PlatformApi
+public abstract class RepositoryClientBase(HttpClient http) : IRepositoryClient
 {
-    private readonly HttpClient _http;
-    public PlatformApi(HttpClient? http = null)
-    {
-        _http = http ?? new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("RepoTransit/1.0");
-        _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    }
-
-    private static string Base(Platform platform) => platform == Platform.GitHub ? "https://api.github.com" : "https://gitee.com/api/v5";
+    protected abstract string BaseUrl { get; }
+    protected abstract HttpMethod CreateMethod { get; }
+    protected virtual void ConfigureRequest(HttpRequestMessage request) { }
     private static string RepoPath(RepositoryConfig repo) => $"/repos/{Uri.EscapeDataString(repo.Owner)}/{Uri.EscapeDataString(repo.Name)}";
 
-    private async Task<HttpResponseMessage> SendAsync(Platform platform, string token, HttpMethod method, string path, HttpContent? content = null, CancellationToken ct = default)
+    private async Task<HttpResponseMessage> SendAsync(string token, HttpMethod method, string path, HttpContent? content = null, CancellationToken ct = default)
     {
-        using var request = new HttpRequestMessage(method, Base(platform) + path) { Content = content };
+        using var request = new HttpRequestMessage(method, BaseUrl + path) { Content = content };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        if (platform == Platform.GitHub) request.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
-        return await _http.SendAsync(request, ct);
+        ConfigureRequest(request);
+        return await http.SendAsync(request, ct);
     }
 
-    public async Task<string> GetLoginAsync(Platform platform, string token, CancellationToken ct = default)
+    public async Task<string> GetLoginAsync(string token, CancellationToken ct = default)
     {
-        using var response = await SendAsync(platform, token, HttpMethod.Get, "/user", ct: ct);
+        using var response = await SendAsync(token, HttpMethod.Get, "/user", ct: ct);
         await EnsureSuccess(response, ct);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         return json.RootElement.GetProperty("login").GetString() ?? throw new InvalidOperationException("平台未返回账号名。");
     }
 
-    public async Task ValidateRepositoryAsync(AccountConfig account, string token, RepositoryConfig repo, CancellationToken ct = default)
+    public async Task ValidateRepositoryAsync(string token, RepositoryConfig repo, CancellationToken ct = default)
     {
-        using var response = await SendAsync(account.Platform, token, HttpMethod.Get, RepoPath(repo), ct: ct);
+        using var response = await SendAsync(token, HttpMethod.Get, RepoPath(repo), ct: ct);
         await EnsureSuccess(response, ct);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         var root = json.RootElement;
@@ -46,34 +40,33 @@ public sealed class PlatformApi
         if (root.TryGetProperty("permissions", out var permissions) && permissions.ValueKind == JsonValueKind.Object &&
             permissions.TryGetProperty("push", out var push) && !push.GetBoolean())
             throw new UnauthorizedAccessException("当前账号没有仓库写入权限。");
-        using var branch = await SendAsync(account.Platform, token, HttpMethod.Get,
+        using var branch = await SendAsync(token, HttpMethod.Get,
             RepoPath(repo) + "/branches/" + Uri.EscapeDataString(repo.Branch), ct: ct);
         await EnsureSuccess(branch, ct);
     }
 
-    public async Task<bool> ExistsAsync(AccountConfig account, string token, RepositoryConfig repo, string path, CancellationToken ct = default)
+    public async Task<bool> ExistsAsync(string token, RepositoryConfig repo, string path, CancellationToken ct = default)
     {
-        var query = account.Platform == Platform.GitHub ? "?ref=" : "?ref=";
-        using var response = await SendAsync(account.Platform, token, HttpMethod.Get,
-            RepoPath(repo) + "/contents/" + PathRules.EncodePath(path) + query + Uri.EscapeDataString(repo.Branch), ct: ct);
+        using var response = await SendAsync(token, HttpMethod.Get,
+            RepoPath(repo) + "/contents/" + PathRules.EncodePath(path) + "?ref=" + Uri.EscapeDataString(repo.Branch), ct: ct);
         if (response.StatusCode == HttpStatusCode.NotFound) return false;
         await EnsureSuccess(response, ct);
         return true;
     }
 
-    public async Task<string> UploadAsync(AccountConfig account, string token, RepositoryConfig repo, string path, byte[] bytes, CancellationToken ct = default)
+    public async Task<string> UploadAsync(string token, RepositoryConfig repo, string path, byte[] bytes, CancellationToken ct = default)
     {
         var body = new { content = Convert.ToBase64String(bytes), message = $"Upload {path} via RepoTransit", branch = repo.Branch };
-        var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-        var method = account.Platform == Platform.GitHub ? HttpMethod.Put : HttpMethod.Post;
-        using var response = await SendAsync(account.Platform, token, method, RepoPath(repo) + "/contents/" + PathRules.EncodePath(path), content, ct);
+        using var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+        using var response = await SendAsync(token, CreateMethod, RepoPath(repo) + "/contents/" + PathRules.EncodePath(path), content, ct);
         await EnsureSuccess(response, ct);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         if (json.RootElement.TryGetProperty("content", out var file) && file.TryGetProperty("html_url", out var url) &&
             url.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(url.GetString())) return url.GetString()!;
-        var host = account.Platform == Platform.GitHub ? "https://github.com" : "https://gitee.com";
-        return $"{host}/{Uri.EscapeDataString(repo.Owner)}/{Uri.EscapeDataString(repo.Name)}/blob/{Uri.EscapeDataString(repo.Branch)}/{PathRules.EncodePath(path)}";
+        return FilePageUrl(repo, path);
     }
+
+    protected abstract string FilePageUrl(RepositoryConfig repo, string path);
 
     private static async Task EnsureSuccess(HttpResponseMessage response, CancellationToken ct)
     {
@@ -97,9 +90,4 @@ public sealed class PlatformApi
         };
         throw new PlatformException(response.StatusCode, $"{prefix}（{(int)response.StatusCode}）：{message}");
     }
-}
-
-public sealed class PlatformException(HttpStatusCode statusCode, string message) : Exception(message)
-{
-    public HttpStatusCode StatusCode { get; } = statusCode;
 }

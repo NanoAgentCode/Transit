@@ -17,4 +17,4 @@
 
 ## 开发验证
 
-运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法及路径碰撞。发布前仍需用有权限的测试私有仓库分别验证 GitHub 与 Gitee 的真实授权、上传和刷新令牌；模拟接口测试不能代替这一步。
+运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法与路径碰撞、授权回调、配置服务和令牌刷新。发布前仍需用有权限的测试私有仓库分别验证 GitHub 与 Gitee 的真实授权、上传和刷新令牌；模拟接口测试不能代替这一步。

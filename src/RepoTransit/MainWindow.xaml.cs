@@ -7,10 +7,7 @@ namespace RepoTransit;
 
 public partial class MainWindow : Window
 {
-    private readonly ConfigStore _store = new();
-    private readonly CredentialStore _secrets = new();
-    private readonly OAuthService _oauth = new();
-    private readonly PlatformApi _api = new();
+    private readonly AppServices _services = new();
     private readonly ObservableCollection<UploadItem> _items = [];
     private AppConfig _config;
     private CancellationTokenSource? _uploadCancel;
@@ -19,7 +16,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _config = _store.Load();
+        _config = _services.Config.Load();
         FilesGrid.ItemsSource = _items;
         RefreshTargets();
         UpdateSummary();
@@ -66,9 +63,9 @@ public partial class MainWindow : Window
     }
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
-        var window = new SettingsWindow(_config, _store, _secrets, _oauth, _api) { Owner = this };
+        var window = new SettingsWindow(_config, _services) { Owner = this };
         window.ShowDialog();
-        _config = _store.Load();
+        _config = _services.Config.Load();
         RefreshTargets(preferDefault: true);
     }
     private void TargetBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -117,11 +114,10 @@ public partial class MainWindow : Window
         TargetBox.IsEnabled = false;
         CancelButton.IsEnabled = true;
         _uploadCancel = new CancellationTokenSource();
-        var coordinator = new UploadCoordinator(_api, _oauth, _secrets, _store);
         try
         {
-            var token = await coordinator.GetTokenAsync(_config, account, _uploadCancel.Token);
-            await _api.ValidateRepositoryAsync(account, token, repo, _uploadCancel.Token);
+            var token = await _services.Tokens.GetTokenAsync(_config, account, _uploadCancel.Token);
+            await _services.Clients.For(account.Platform).ValidateRepositoryAsync(token, repo, _uploadCancel.Token);
             foreach (var item in items)
             {
                 if (_uploadCancel.IsCancellationRequested) break;
@@ -131,7 +127,10 @@ public partial class MainWindow : Window
                 item.Url = "";
                 try
                 {
-                    await coordinator.UploadAsync(_config, repo, item, _uploadCancel.Token);
+                    var result = await _services.Uploads.UploadAsync(_config, repo,
+                        new UploadRequest(item.LocalPath, item.OriginalLength, item.OriginalWriteTimeUtc), _uploadCancel.Token);
+                    item.RemotePath = result.RemotePath;
+                    item.Url = result.Url;
                     item.Status = "成功";
                 }
                 catch (OperationCanceledException) { item.Status = "等待中"; break; }

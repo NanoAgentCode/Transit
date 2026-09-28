@@ -6,18 +6,15 @@ namespace RepoTransit;
 public partial class SettingsWindow : Window
 {
     private readonly AppConfig _config;
-    private readonly ConfigStore _store;
-    private readonly CredentialStore _secrets;
-    private readonly OAuthService _oauth;
-    private readonly PlatformApi _api;
+    private readonly AppServices _services;
     private AccountConfig? _draftAccount;
     private RepositoryConfig? _draftRepo;
     private CancellationTokenSource? _authCancel;
 
-    public SettingsWindow(AppConfig config, ConfigStore store, CredentialStore secrets, OAuthService oauth, PlatformApi api)
+    public SettingsWindow(AppConfig config, AppServices services)
     {
         InitializeComponent();
-        _config = config; _store = store; _secrets = secrets; _oauth = oauth; _api = api;
+        _config = config; _services = services;
         RefreshLists();
     }
 
@@ -51,7 +48,7 @@ public partial class SettingsWindow : Window
         ClientId.Text = account.ClientId;
         ClientSecret.Password = "";
         CallbackPort.Text = account.CallbackPort.ToString();
-        AccountStatus.Text = _secrets.Read(account.Id, "access") == null ? "待授权" : $"已授权：{account.Login}";
+        AccountStatus.Text = _services.Credentials.Read(account.Id, "access") == null ? "待授权" : $"已授权：{account.Login}";
     }
     private void NewGithub_Click(object sender, RoutedEventArgs e) => NewAccount(Platform.GitHub);
     private void NewGitee_Click(object sender, RoutedEventArgs e) => NewAccount(Platform.Gitee);
@@ -74,30 +71,24 @@ public partial class SettingsWindow : Window
         try
         {
             TokenResult result;
+            string? clientSecret = null;
             if (account.Platform == Platform.GitHub)
             {
-                var challenge = await _oauth.StartGitHubAsync(clientId, _authCancel.Token);
+                var challenge = await _services.OAuth.StartGitHubAsync(clientId, _authCancel.Token);
                 OAuthService.OpenBrowser(challenge.VerificationUri);
                 Clipboard.SetText(challenge.UserCode);
                 MessageBox.Show(this, $"浏览器中输入代码：{challenge.UserCode}\n\n代码已复制到剪贴板。授权完成后点击确定，客户端会继续等待结果。", "GitHub 授权");
-                result = await _oauth.FinishGitHubAsync(clientId, challenge, _authCancel.Token);
+                result = await _services.OAuth.FinishGitHubAsync(clientId, challenge, _authCancel.Token);
             }
             else
             {
-                var secret = ClientSecret.Password.Length > 0 ? ClientSecret.Password : _secrets.Read(account.Id, "client-secret");
-                if (string.IsNullOrEmpty(secret)) throw new InvalidOperationException("请填写 Gitee Client Secret。");
+                clientSecret = ClientSecret.Password.Length > 0 ? ClientSecret.Password : _services.Credentials.Read(account.Id, "client-secret");
+                if (string.IsNullOrEmpty(clientSecret)) throw new InvalidOperationException("请填写 Gitee Client Secret。");
                 MessageBox.Show(this, $"请确认 Gitee 应用的回调地址为：\nhttp://127.0.0.1:{port}/callback\n\n点击确定后将在浏览器中授权。", "Gitee 授权");
-                result = await _oauth.AuthorizeGiteeAsync(clientId, secret, port, _authCancel.Token);
-                _secrets.Save(account.Id, "client-secret", secret);
+                result = await _services.OAuth.AuthorizeGiteeAsync(clientId, clientSecret, port, _authCancel.Token);
             }
-            var login = await _api.GetLoginAsync(account.Platform, result.AccessToken, _authCancel.Token);
-            _secrets.Save(account.Id, "access", result.AccessToken);
-            if (result.RefreshToken != null) _secrets.Save(account.Id, "refresh", result.RefreshToken);
-            account.ClientId = clientId; account.CallbackPort = port; account.Login = login;
-            account.DisplayName = string.IsNullOrWhiteSpace(AccountName.Text) ? login : AccountName.Text.Trim();
-            account.ExpiresAt = result.ExpiresAt;
-            if (!_config.Accounts.Contains(account)) _config.Accounts.Add(account);
-            _store.Save(_config);
+            var login = await _services.Accounts.CompleteAuthorizationAsync(_config, account, clientId,
+                AccountName.Text, port, result, clientSecret, _authCancel.Token);
             _draftAccount = null;
             RefreshLists();
             AccountsList.SelectedItem = account;
@@ -142,8 +133,7 @@ public partial class SettingsWindow : Window
     {
         var account = SelectedAccount;
         if (account == null || !_config.Accounts.Contains(account)) return;
-        account.DisplayName = AccountName.Text.Trim();
-        _store.Save(_config);
+        _services.Accounts.Rename(_config, account, AccountName.Text);
         RefreshLists();
     }
     private void Disconnect_Click(object sender, RoutedEventArgs e)
@@ -151,9 +141,7 @@ public partial class SettingsWindow : Window
         var account = SelectedAccount;
         if (account == null || !_config.Accounts.Contains(account)) return;
         if (MessageBox.Show(this, "清除该账号在本机保存的授权？已上传文件不会删除。", "断开授权", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
-        foreach (var key in new[] { "access", "refresh", "client-secret" }) _secrets.Delete(account.Id, key);
-        account.ExpiresAt = null;
-        _store.Save(_config);
+        _services.Accounts.Disconnect(_config, account);
         AccountStatus.Text = "待授权";
     }
     private void GithubApps_Click(object sender, RoutedEventArgs e) => OAuthService.OpenBrowser("https://github.com/settings/developers");
@@ -187,13 +175,7 @@ public partial class SettingsWindow : Window
         IsEnabled = false;
         try
         {
-            var coordinator = new UploadCoordinator(_api, _oauth, _secrets, _store);
-            var token = await coordinator.GetTokenAsync(_config, account);
-            await _api.ValidateRepositoryAsync(account, token, candidate);
-            repo.AccountId = candidate.AccountId; repo.Owner = owner; repo.Name = name; repo.Branch = branch; repo.DisplayName = candidate.DisplayName;
-            if (!_config.Repositories.Contains(repo)) _config.Repositories.Add(repo);
-            if (_config.DefaultRepositoryId == null) _config.DefaultRepositoryId = repo.Id;
-            _store.Save(_config);
+            await _services.Repositories.SaveAsync(_config, repo, account, candidate);
             _draftRepo = null;
             RefreshLists(); RepositoriesList.SelectedItem = repo;
             RepoStatus.Text = "验证成功，已保存。";
@@ -205,8 +187,7 @@ public partial class SettingsWindow : Window
     {
         var repo = SelectedRepo;
         if (repo == null || !_config.Repositories.Contains(repo)) return;
-        _config.DefaultRepositoryId = repo.Id;
-        _store.Save(_config);
+        _services.Repositories.SetDefault(_config, repo);
         RepoStatus.Text = "当前默认仓库";
     }
     private void RemoveRepo_Click(object sender, RoutedEventArgs e)
@@ -214,9 +195,7 @@ public partial class SettingsWindow : Window
         var repo = SelectedRepo;
         if (repo == null || !_config.Repositories.Contains(repo)) return;
         if (MessageBox.Show(this, "删除本地仓库配置？远端文件不会被删除。", "删除配置", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
-        _config.Repositories.Remove(repo);
-        if (_config.DefaultRepositoryId == repo.Id) _config.DefaultRepositoryId = _config.Repositories.FirstOrDefault()?.Id;
-        _store.Save(_config);
+        _services.Repositories.Remove(_config, repo);
         RefreshLists();
         RepoStatus.Text = "配置已删除。";
     }

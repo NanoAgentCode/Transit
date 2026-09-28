@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{973E0B18
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoTransit.Tests", "tests\RepoTransit.Tests\RepoTransit.Tests.csproj", "{89B6E522-55AB-4EB1-B9CF-6A50ED3EAFAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoTransit.Core", "src\RepoTransit.Core\RepoTransit.Core.csproj", "{FF9E50FF-115F-46A2-8D9B-755F93713D8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{89B6E522-55AB-4EB1-B9CF-6A50ED3EAFAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89B6E522-55AB-4EB1-B9CF-6A50ED3EAFAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89B6E522-55AB-4EB1-B9CF-6A50ED3EAFAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF9E50FF-115F-46A2-8D9B-755F93713D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF9E50FF-115F-46A2-8D9B-755F93713D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF9E50FF-115F-46A2-8D9B-755F93713D8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF9E50FF-115F-46A2-8D9B-755F93713D8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5F48BE59-56F9-4362-B135-9957BBF0ECF8} = {A6E8342A-5893-4550-BDA2-EE5F73DAD802}
 		{89B6E522-55AB-4EB1-B9CF-6A50ED3EAFAD} = {973E0B18-6656-4754-A24B-A9CE8DAE46E6}
+		{FF9E50FF-115F-46A2-8D9B-755F93713D8E} = {A6E8342A-5893-4550-BDA2-EE5F73DAD802}
 	EndGlobalSection
 EndGlobal
