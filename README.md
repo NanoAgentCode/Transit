@@ -4,6 +4,8 @@
 
 项目由独立的核心类库和 WPF 界面组成；界面采用贴近 Windows 11 的浅色卡片与圆角控件，并提供专用应用图标。模块边界与扩展方式见 [架构与维护指南](docs/architecture.md)。
 
+想了解产品方案可读 [设计文档](docs/design.md)；希望按代码路径学习与实践可读 [学习路线](docs/learning-roadmap.md)。
+
 ## 运行环境
 
 - Windows 10/11，x64
