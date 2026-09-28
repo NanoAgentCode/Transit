@@ -39,7 +39,13 @@
                     <TextBlock Text="选择本次上传位置" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0" />
                 </StackPanel>
                 <ComboBox x:Name="TargetBox" Grid.Column="1" MinWidth="340" MaxWidth="570" HorizontalAlignment="Stretch"
-                          VerticalAlignment="Center" SelectionChanged="TargetBox_SelectionChanged" DisplayMemberPath="DisplayLabel" />
+                          VerticalAlignment="Center" SelectionChanged="TargetBox_SelectionChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayLabel}" TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <TextBlock x:Name="TargetHint" Grid.Column="2" VerticalAlignment="Center" Margin="18,0,0,0"
                            Foreground="{StaticResource MutedBrush}" />
             </Grid>
