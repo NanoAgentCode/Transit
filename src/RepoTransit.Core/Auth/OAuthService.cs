@@ -22,7 +22,8 @@ public sealed class OAuthService
     public Task<TokenResult> FinishGitHubAsync(string clientId, DeviceChallenge challenge, CancellationToken ct = default) => _github.FinishAsync(clientId, challenge, ct);
     public Task<TokenResult> RefreshGitHubAsync(string clientId, string refreshToken, CancellationToken ct = default) => _github.RefreshAsync(clientId, refreshToken, ct);
     public Task<TokenResult> AuthorizeGiteeAsync(string clientId, string secret, int port, CancellationToken ct = default) => _gitee.AuthorizeAsync(clientId, secret, port, ct);
-    public Task<TokenResult> RefreshGiteeAsync(string refreshToken, CancellationToken ct = default) => _gitee.RefreshAsync(refreshToken, ct);
+    public Task<TokenResult> RefreshGiteeAsync(string clientId, string clientSecret, string refreshToken, CancellationToken ct = default) =>
+        _gitee.RefreshAsync(clientId, clientSecret, refreshToken, ct);
 
     public static void OpenBrowser(string url) => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
 }

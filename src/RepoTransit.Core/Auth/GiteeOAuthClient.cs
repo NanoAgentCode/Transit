@@ -58,10 +58,14 @@ public sealed class GiteeOAuthClient(HttpClient http, Action<string> openBrowser
         finally { listener.Stop(); }
     }
 
-    public async Task<TokenResult> RefreshAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<TokenResult> RefreshAsync(string clientId, string clientSecret, string refreshToken, CancellationToken ct = default)
     {
         using var response = await http.PostAsync("https://gitee.com/oauth/token",
-            new FormUrlEncodedContent(new Dictionary<string, string> { ["grant_type"] = "refresh_token", ["refresh_token"] = refreshToken }), ct);
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token", ["refresh_token"] = refreshToken,
+                ["client_id"] = clientId, ["client_secret"] = clientSecret
+            }), ct);
         response.EnsureSuccessStatusCode();
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
         return OAuthTokenParser.Parse(json.RootElement);

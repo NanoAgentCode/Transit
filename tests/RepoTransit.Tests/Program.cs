@@ -121,9 +121,11 @@ await Check("Gitee 本机回调校验与换令牌", async () =>
     Equal(1, handler.GiteeExchanges);
     Equal("correct", handler.GiteeCode);
     Equal("local-secret", handler.GiteeSecret);
-    var refreshed = await oauth.RefreshGiteeAsync("old-refresh");
+    var refreshed = await oauth.RefreshGiteeAsync("gitee-client", "local-secret", "old-refresh");
     Equal("gt-token", refreshed.AccessToken);
     Equal("old-refresh", handler.RefreshToken);
+    Equal("gitee-client", handler.GiteeRefreshClientId);
+    Equal("local-secret", handler.GiteeRefreshSecret);
 });
 await Check("账号与仓库服务保持多配置和默认目标", async () =>
 {
@@ -166,10 +168,11 @@ await Check("到期令牌刷新并保存新凭据", async () =>
     var root = NewTestDirectory();
     var credentials = new CredentialStore();
     var store = new ConfigStore(Path.Combine(root, "config.json"));
-    var account = new AccountConfig { Platform = Platform.Gitee, ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(-1) };
+    var account = new AccountConfig { Platform = Platform.Gitee, ClientId = "gitee-client", ExpiresAt = DateTimeOffset.UtcNow.AddMinutes(-1) };
     var config = new AppConfig { Accounts = [account] };
     credentials.Save(account.Id, "access", "expired");
     credentials.Save(account.Id, "refresh", "old-refresh");
+    credentials.Save(account.Id, "client-secret", "local-secret");
     try
     {
         var manager = new TokenManager(new OAuthService(new HttpClient(new FakeOAuthHandler())), credentials, store);
@@ -181,6 +184,7 @@ await Check("到期令牌刷新并保存新凭据", async () =>
     finally
     {
         credentials.Delete(account.Id, "access"); credentials.Delete(account.Id, "refresh");
+        credentials.Delete(account.Id, "client-secret");
         Directory.Delete(root, true);
     }
 });
@@ -252,6 +256,8 @@ sealed class FakeOAuthHandler : HttpMessageHandler
     public string? RefreshToken { get; private set; }
     public string? GiteeCode { get; private set; }
     public string? GiteeSecret { get; private set; }
+    public string? GiteeRefreshClientId { get; private set; }
+    public string? GiteeRefreshSecret { get; private set; }
     public int GiteeExchanges { get; private set; }
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
@@ -270,7 +276,12 @@ sealed class FakeOAuthHandler : HttpMessageHandler
         }
         if (uri.Host == "gitee.com" && uri.AbsolutePath == "/oauth/token")
         {
-            if (form.TryGetValue("refresh_token", out var refresh)) RefreshToken = refresh;
+            if (form.TryGetValue("refresh_token", out var refresh))
+            {
+                RefreshToken = refresh;
+                GiteeRefreshClientId = form["client_id"];
+                GiteeRefreshSecret = form["client_secret"];
+            }
             else
             {
                 GiteeExchanges++;

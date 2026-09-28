@@ -14,7 +14,8 @@ public sealed class TokenManager(OAuthService oauth, CredentialStore secrets, Co
         {
             result = account.Platform == Platform.GitHub
                 ? await oauth.RefreshGitHubAsync(account.ClientId, refresh, ct)
-                : await oauth.RefreshGiteeAsync(refresh, ct);
+                : await oauth.RefreshGiteeAsync(account.ClientId,
+                    secrets.Read(account.Id, "client-secret") ?? throw new UnauthorizedAccessException("Gitee 应用密钥缺失，请重新授权。"), refresh, ct);
         }
         catch (Exception ex) when (ex is HttpRequestException or InvalidOperationException)
         {
