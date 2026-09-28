@@ -15,6 +15,7 @@
 ```powershell
 dotnet run --project src/RepoTransit/RepoTransit.csproj
 dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj
+dotnet run --project tests/RepoTransit.IntegrationTests/RepoTransit.IntegrationTests.csproj
 dotnet publish src/RepoTransit/RepoTransit.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
 ```
 
@@ -35,4 +36,4 @@ GitHub OAuth 的 `repo` 授权覆盖账号可访问的私有仓库，上传目�
 
 非敏感配置保存在 `%APPDATA%/RepoTransit/config.json`。访问令牌、刷新令牌及 Gitee Client Secret 保存在 Windows 凭据管理器中。点击“断开本机授权”会删除本机凭据；如需在平台侧撤销授权，还需到平台的授权管理页操作。
 
-GitHub 普通仓库文件限制为 100 MB；Gitee 文件大小由其接口及仓库限制决定，超限时会显示平台错误。客户端按文件逐项上传，部分失败不会回滚已成功的文件。Gitee 本机回调与令牌刷新仍需要用户使用自己的第三方应用进行现场验证，详见 [设计文档](docs/design.md)。
+GitHub 普通仓库文件限制为 100 MB；Gitee 文件大小由其接口及仓库限制决定，超限时会显示平台错误。客户端按文件逐项上传，部分失败不会回滚已成功的文件。GitHub 私有仓库授权和小文件上传已现场验证；Gitee 本机回调与令牌刷新仍需要用户使用自己的第三方应用进行现场验证，详见 [设计文档](docs/design.md)。

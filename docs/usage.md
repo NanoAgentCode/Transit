@@ -23,4 +23,4 @@
 
 ## 开发验证
 
-运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法与路径碰撞、授权回调、配置服务和令牌刷新。发布前仍需用有权限的测试私有仓库分别验证 GitHub 与 Gitee 的真实授权、上传和刷新令牌；模拟接口测试不能代替这一步。
+运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法与路径碰撞、授权回调、配置服务和令牌刷新。`dotnet run --project tests/RepoTransit.IntegrationTests/RepoTransit.IntegrationTests.csproj` 会使用本机默认配置只读验证账号和私有仓库；明确加上 `-- --upload` 才会向默认仓库写入一个测试文本文件。GitHub 私有仓库授权、小文件上传和远端文件查询已于 2026-09-28 现场通过。Gitee 真实授权与上传、令牌刷新仍需相应测试仓库和 OAuth 应用验证；模拟接口测试不能代替这一步。
