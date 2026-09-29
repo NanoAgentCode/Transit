@@ -22,7 +22,7 @@ public partial class MainWindow : Window
         UpdateSummary();
     }
 
-    private sealed record TargetChoice(RepositoryConfig Repository, string DisplayLabel);
+    private sealed record TargetChoice(RepositoryConfig Repository, string DisplayLabel, string DetailLabel);
     private RepositoryConfig? SelectedRepository => (TargetBox.SelectedItem as TargetChoice)?.Repository;
 
     private void RefreshTargets(bool preferDefault = false)
@@ -31,7 +31,9 @@ public partial class MainWindow : Window
         TargetBox.ItemsSource = _config.Repositories.Select(r =>
         {
             var account = _config.Accounts.FirstOrDefault(a => a.Id == r.AccountId);
-            return new TargetChoice(r, $"{account?.Platform.ToString() ?? "未关联"} · {r} · {account?.Login ?? "待授权"}");
+            return new TargetChoice(r,
+                $"{r.Owner}/{r.Name}",
+                $"{account?.Platform.ToString() ?? "未关联"} · {r.Owner}/{r.Name} · {r.Branch} · {account?.Login ?? "待授权"}");
         }).ToList();
         TargetBox.SelectedItem = ((IEnumerable<TargetChoice>)TargetBox.ItemsSource).FirstOrDefault(r => r.Repository.Id == selected);
         TargetHint.Text = _config.Repositories.Count == 0 ? "请先添加账号与私有仓库" : "";

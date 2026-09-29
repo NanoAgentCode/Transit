@@ -38,8 +38,14 @@
                     <TextBlock Text="目标仓库" FontWeight="SemiBold" FontSize="14" />
                     <TextBlock Text="选择本次上传位置" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0" />
                 </StackPanel>
-                <ComboBox x:Name="TargetBox" Grid.Column="1" MinWidth="340" MaxWidth="570" HorizontalAlignment="Stretch"
-                          VerticalAlignment="Center" SelectionChanged="TargetBox_SelectionChanged">
+                <ComboBox x:Name="TargetBox" Grid.Column="1" MinWidth="220" HorizontalAlignment="Left"
+                          VerticalAlignment="Center" SelectionChanged="TargetBox_SelectionChanged"
+                          ToolTip="{Binding SelectedItem.DetailLabel, RelativeSource={RelativeSource Self}}">
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+                            <Setter Property="ToolTip" Value="{Binding DetailLabel}" />
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DisplayLabel}" TextTrimming="CharacterEllipsis" />
