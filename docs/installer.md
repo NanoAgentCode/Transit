@@ -23,4 +23,4 @@ dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj -c Release
 
 在未安装仓渡的测试环境运行 `./tests/Installer.Tests.ps1 -Version 0.1.0`。脚本以独立目录静默安装，检查应用版本与启动，再静默卸载；检测到现有安装时会拒绝执行。正式发布前，还应手动检查安装向导、开始菜单快捷方式、托盘退出、覆盖升级和卸载后的配置保留。
 
-`.github/workflows/installer.yml` 支持手动输入版本号或推送 `vX.Y.Z` 标签，校验并安装固定版本的 Inno Setup 6.7.3，执行构建并上传安装包及校验文件为 Actions 产物。它不自动发布 GitHub Release。公开分发前需自行决定代码签名方案；当前 Gitee 真实授权与上传及两个平台的令牌刷新仍待现场验证。
+`.github/workflows/installer.yml` 支持手动输入版本号或推送 `vX.Y.Z` 标签，校验并安装固定版本的 Inno Setup 6.7.3，执行构建并上传安装包及校验文件为 Actions 产物。它不自动发布 GitHub Release。公开分发前需自行决定代码签名方案；Gitee 授权已由用户确认，真实上传及两个平台的令牌刷新仍待现场验证。

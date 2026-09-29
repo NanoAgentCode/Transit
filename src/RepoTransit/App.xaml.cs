@@ -74,6 +74,7 @@ public partial class App : System.Windows.Application
         MainWindow.ShowInTaskbar = true;
         MainWindow.Show();
         MainWindow.WindowState = WindowState.Normal;
+        WindowSnapBehavior.EnsureVisible(MainWindow);
         MainWindow.Activate();
     }
 

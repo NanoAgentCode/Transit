@@ -48,7 +48,13 @@ public partial class SettingsWindow : Window
         ClientId.Text = account.ClientId;
         ClientSecret.Password = "";
         CallbackPort.Text = account.CallbackPort.ToString();
-        AccountStatus.Text = _services.Credentials.Read(account.Id, "access") == null ? "待授权" : $"已授权：{account.Login}";
+        ShowAuthorizationState(account);
+    }
+    private void ShowAuthorizationState(AccountConfig account)
+    {
+        var state = AuthorizationViewState.Read(account, _services.Credentials);
+        AccountStatus.Text = state.Status;
+        AuthorizeButton.Content = state.ButtonText;
     }
     private void NewGithub_Click(object sender, RoutedEventArgs e) => NewAccount(Platform.GitHub);
     private void NewGitee_Click(object sender, RoutedEventArgs e) => NewAccount(Platform.Gitee);
@@ -87,12 +93,12 @@ public partial class SettingsWindow : Window
                 MessageBox.Show(this, $"请确认 Gitee 应用的回调地址为：\nhttp://127.0.0.1:{port}/callback\n\n点击确定后将在浏览器中授权。", "Gitee 授权");
                 result = await _services.OAuth.AuthorizeGiteeAsync(clientId, clientSecret, port, _authCancel.Token);
             }
-            var login = await _services.Accounts.CompleteAuthorizationAsync(_config, account, clientId,
+            await _services.Accounts.CompleteAuthorizationAsync(_config, account, clientId,
                 AccountName.Text, port, result, clientSecret, _authCancel.Token);
             _draftAccount = null;
             RefreshLists();
             AccountsList.SelectedItem = account;
-            AccountStatus.Text = $"已授权：{login}";
+            ShowAuthorizationState(account);
         }
         catch (OperationCanceledException) { AccountStatus.Text = "授权已取消。"; }
         catch (Exception ex) { AccountStatus.Text = "授权失败：" + ex.Message; }
@@ -142,7 +148,7 @@ public partial class SettingsWindow : Window
         if (account == null || !_config.Accounts.Contains(account)) return;
         if (MessageBox.Show(this, "清除该账号在本机保存的授权？已上传文件不会删除。", "断开授权", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
         _services.Accounts.Disconnect(_config, account);
-        AccountStatus.Text = "待授权";
+        ShowAuthorizationState(account);
     }
     private void GithubApps_Click(object sender, RoutedEventArgs e) => OAuthService.OpenBrowser("https://github.com/settings/developers");
     private void GiteeApps_Click(object sender, RoutedEventArgs e) => OAuthService.OpenBrowser("https://gitee.com/oauth/applications");

@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        WindowSnapBehavior.Attach(this);
         _config = _services.Config.Load();
         FilesGrid.ItemsSource = _items;
         RefreshTargets();

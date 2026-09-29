@@ -21,10 +21,11 @@
 ## 仓库与上传
 
 - 目标仓库必须已存在且为私有仓库。新建配置时会验证仓库及分支是否可访问。
+- 主窗口拖动到屏幕边缘附近时会自动贴边；若标题栏移到屏幕外，可从任务栏或托盘重新打开以恢复到可见区域。
 - 主窗口选择目标，拖入文件，确认平台、仓库与分支，再开始上传。
 - 每个文件独立报告结果；失败项可重试。重试使用原目标仓库，即使主窗口当前选择了其他仓库。
 - 上传成功后选择结果行，点击“复制文件链接”或“复制仓库路径”。
 
 ## 开发验证
 
-运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法与路径碰撞、授权回调、配置服务和令牌刷新。`dotnet run --project tests/RepoTransit.IntegrationTests/RepoTransit.IntegrationTests.csproj` 会使用本机默认配置只读验证账号和私有仓库；明确加上 `-- --upload` 才会向默认仓库写入一个测试文本文件。GitHub 私有仓库授权、小文件上传和远端文件查询已于 2026-09-28 现场通过。Gitee 真实授权与上传、令牌刷新仍需相应测试仓库和 OAuth 应用验证；模拟接口测试不能代替这一步。
+运行 `dotnet run --project tests/RepoTransit.Tests/RepoTransit.Tests.csproj`，覆盖路径规则、配置持久化、Windows 凭据管理器、两个平台的请求方法与路径碰撞、授权回调、配置服务和令牌刷新。`dotnet run --project tests/RepoTransit.IntegrationTests/RepoTransit.IntegrationTests.csproj` 会使用本机默认配置只读验证账号和私有仓库；明确加上 `-- --upload` 才会向默认仓库写入一个测试文本文件。GitHub 私有仓库授权、小文件上传和远端文件查询已于 2026-09-28 现场通过。用户于 2026-09-29 确认 Gitee 浏览器授权及本机回调通过；Gitee 真实上传与两个平台的令牌刷新仍需现场验证，模拟接口测试不能代替这一步。

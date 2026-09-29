@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\RepoTransit.Core\RepoTransit.Core.csproj" />
+    <Compile Include="..\..\src\RepoTransit\WindowSnap.cs" Link="WindowSnap.cs" />
+    <Compile Include="..\..\src\RepoTransit\AuthorizationViewState.cs" Link="AuthorizationViewState.cs" />
   </ItemGroup>
 
   <PropertyGroup>

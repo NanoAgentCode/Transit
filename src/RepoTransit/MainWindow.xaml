@@ -1,7 +1,7 @@
 <Window x:Class="RepoTransit.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="仓渡 · RepoTransit" Width="1080" Height="740" MinWidth="920" MinHeight="600"
+        Title="仓渡 · RepoTransit" Width="1080" Height="740" MinWidth="780" MinHeight="600"
         WindowStartupLocation="CenterScreen" Icon="/Assets/RepoTransit.ico"
         Background="{StaticResource PageBrush}" Foreground="{StaticResource TextBrush}"
         FontFamily="Segoe UI Variable,Microsoft YaHei UI" FontSize="13"

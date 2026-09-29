@@ -1,10 +1,38 @@
 using RepoTransit;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
 var failures = new List<string>();
+await Check("授权按钮随凭据状态切换", () =>
+{
+    var account = new AccountConfig { Login = "tester" };
+    var credentials = new CredentialStore();
+    try
+    {
+        Equal(("待授权", "浏览器授权"), AuthorizationViewState.Read(account, credentials));
+        credentials.Save(account.Id, "access", "test-token");
+        Equal(("已授权：tester", "重新授权"), AuthorizationViewState.Read(account, credentials));
+        credentials.Delete(account.Id, "access");
+        Equal(("待授权", "浏览器授权"), AuthorizationViewState.Read(account, credentials));
+    }
+    finally { credentials.Delete(account.Id, "access"); }
+    return Task.CompletedTask;
+});
+await Check("窗口贴边与越界恢复", () =>
+{
+    var workArea = new Rectangle(-1920, 0, 1920, 1040);
+    Equal(new Rectangle(-1920, 0, 780, 600), WindowSnap.Snap(new Rectangle(-1908, 8, 780, 600), workArea, 16));
+    Equal(new Rectangle(-780, 440, 780, 600), WindowSnap.Snap(new Rectangle(-770, 429, 780, 600), workArea, 16));
+    Equal(new Rectangle(-1500, 200, 780, 600), WindowSnap.Snap(new Rectangle(-1500, 200, 780, 600), workArea, 16));
+    Equal(new Rectangle(-780, 440, 780, 600), WindowSnap.KeepVisible(new Rectangle(100, 900, 780, 600), workArea));
+    Equal(new Rectangle(-1920, 0, 2200, 1200), WindowSnap.KeepVisible(new Rectangle(3000, 2000, 2200, 1200), workArea));
+    True(WindowSnap.TitleBarVisible(new Rectangle(-800, 100, 780, 600), [workArea]), "跨屏时可见的标题栏被误判为越界");
+    True(!WindowSnap.TitleBarVisible(new Rectangle(100, 900, 780, 600), [workArea]), "屏幕外的标题栏未被识别");
+    return Task.CompletedTask;
+});
 await Check("单实例互斥与释放", () =>
 {
     var name = $@"Local\RepoTransit.Test.{Guid.NewGuid():N}";
@@ -207,7 +235,7 @@ await Check("到期令牌刷新并保存新凭据", async () =>
     }
 });
 if (failures.Count > 0) { Console.Error.WriteLine(string.Join(Environment.NewLine, failures)); return 1; }
-Console.WriteLine("全部 9 组检查通过。");
+Console.WriteLine("全部 11 组检查通过。");
 return 0;
 
 async Task Check(string name, Func<Task> test)
