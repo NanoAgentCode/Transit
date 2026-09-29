@@ -52,7 +52,7 @@
                                     <TextBlock Text="应用 Client ID" /><TextBox x:Name="ClientId" Margin="0,5,0,12" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Grid.Column="0">
-                                    <TextBlock Text="Gitee Client Secret（GitHub 无需填写）" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="Client Secret（GitHub 无需填写）" TextTrimming="CharacterEllipsis" />
                                     <PasswordBox x:Name="ClientSecret" Margin="0,5,0,0" />
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Grid.Column="2">
@@ -61,24 +61,40 @@
                             </Grid>
                             <TextBlock Grid.Row="2" Text="Gitee 回调地址需与端口一致，例如 http://127.0.0.1:47831/callback"
                                        TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,8,0,0" />
-                            <TextBlock x:Name="AccountStatus" Grid.Row="3" VerticalAlignment="Bottom" TextWrapping="Wrap"
-                                       Foreground="{StaticResource MutedBrush}" Margin="0,8,0,10" />
-                            <WrapPanel Grid.Row="4" Margin="0,0,0,10">
-                                <Button x:Name="AuthorizeButton" Content="浏览器授权" Click="Authorize_Click"
-                                        Style="{StaticResource PrimaryButton}" Margin="0,0,8,6" />
-                                <Button x:Name="CancelAuthButton" Content="取消授权" Click="CancelAuth_Click" IsEnabled="False" Margin="0,0,8,6" />
-                                <Button Content="保存名称" Click="SaveAccountName_Click" Margin="0,0,8,6" />
-                                <Button Content="断开本机授权" Click="Disconnect_Click" Margin="0,0,0,6" />
-                            </WrapPanel>
-                            <Border Grid.Row="5" Background="#F7F7F7" CornerRadius="8" Padding="12">
+                            <Border Grid.Row="4" Background="#F8FBFF" BorderBrush="#DCEAF7" BorderThickness="1"
+                                    CornerRadius="8" Padding="14,12" Margin="0,0,0,10">
                                 <StackPanel>
-                                    <TextBlock Text="GitHub 需启用 Device Flow；Gitee 需注册应用并设置本机回调地址。"
-                                               TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" />
-                                    <WrapPanel Margin="0,6,0,0">
-                                        <Button Content="GitHub 应用设置" Click="GithubApps_Click" Style="{StaticResource QuietButton}" Margin="0,0,8,0" />
-                                        <Button Content="Gitee 应用设置" Click="GiteeApps_Click" Style="{StaticResource QuietButton}" />
-                                    </WrapPanel>
+                                    <TextBlock x:Name="AccountStatus" TextWrapping="Wrap" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextBrush}" Margin="0,0,0,10" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button x:Name="AuthorizeButton" Content="浏览器授权" Click="Authorize_Click"
+                                                    Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" />
+                                            <Button x:Name="CancelAuthButton" Content="取消授权" Click="CancelAuth_Click"
+                                                    IsEnabled="False" Visibility="Collapsed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                            <Button Content="保存信息" Click="SaveAccountName_Click" ToolTip="仅保存本地显示名称" Margin="0,0,8,0" />
+                                            <Button Content="断开授权" Click="Disconnect_Click"
+                                                    Foreground="#A12C27" BorderBrush="#EAC8C6" />
+                                        </StackPanel>
+                                    </Grid>
                                 </StackPanel>
+                            </Border>
+                            <Border Grid.Row="5" Background="#F7F7F7" CornerRadius="8" Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,12,0">
+                                        <TextBlock x:Name="AuthHelpTitle" Text="授权说明" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="AuthHelpText" Text="选择或新增账号后显示对应平台的配置提示。" TextWrapping="Wrap" FontSize="12"
+                                                   Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                    <Button x:Name="GithubAppsButton" Grid.Column="1" Content="GitHub 应用设置 ↗"
+                                            Click="GithubApps_Click" Style="{StaticResource QuietButton}" VerticalAlignment="Center" Visibility="Collapsed" />
+                                    <Button x:Name="GiteeAppsButton" Grid.Column="1" Content="Gitee 应用设置 ↗"
+                                            Click="GiteeApps_Click" Style="{StaticResource QuietButton}" VerticalAlignment="Center" Visibility="Collapsed" />
+                                </Grid>
                             </Border>
                         </Grid>
                     </Grid>

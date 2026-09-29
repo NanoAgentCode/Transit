@@ -32,9 +32,10 @@ public partial class MainWindow : Window
         TargetBox.ItemsSource = _config.Repositories.Select(r =>
         {
             var account = _config.Accounts.FirstOrDefault(a => a.Id == r.AccountId);
+            var platform = account?.Platform.ToString() ?? "未关联";
             return new TargetChoice(r,
-                $"{r.Owner}/{r.Name}",
-                $"{account?.Platform.ToString() ?? "未关联"} · {r.Owner}/{r.Name} · {r.Branch} · {account?.Login ?? "待授权"}");
+                $"{r.Owner}/{r.Name} · {platform}",
+                $"{platform} · {r.Owner}/{r.Name} · {r.Branch} · {account?.Login ?? "待授权"}");
         }).ToList();
         TargetBox.SelectedItem = ((IEnumerable<TargetChoice>)TargetBox.ItemsSource).FirstOrDefault(r => r.Repository.Id == selected);
         TargetHint.Text = _config.Repositories.Count == 0 ? "请先添加账号与私有仓库" : "";

@@ -49,6 +49,13 @@ public partial class SettingsWindow : Window
         ClientSecret.Password = "";
         CallbackPort.Text = account.CallbackPort.ToString();
         ShowAuthorizationState(account);
+        var github = account.Platform == Platform.GitHub;
+        AuthHelpTitle.Text = github ? "GitHub 授权提示" : "Gitee 授权提示";
+        AuthHelpText.Text = github
+            ? "在 OAuth App 中启用 Device Flow，授权时输入浏览器显示的一次性验证码。"
+            : "在第三方应用中登记本机回调地址，并填写 Client ID 与 Client Secret。";
+        GithubAppsButton.Visibility = github ? Visibility.Visible : Visibility.Collapsed;
+        GiteeAppsButton.Visibility = github ? Visibility.Collapsed : Visibility.Visible;
     }
     private void ShowAuthorizationState(AccountConfig account)
     {
@@ -114,7 +121,9 @@ public partial class SettingsWindow : Window
     private void SetAuthBusy(bool busy)
     {
         AuthorizeButton.IsEnabled = !busy;
+        AuthorizeButton.Visibility = busy ? Visibility.Collapsed : Visibility.Visible;
         CancelAuthButton.IsEnabled = busy;
+        CancelAuthButton.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
         AccountsList.IsEnabled = !busy;
         NewGithubButton.IsEnabled = !busy;
         NewGiteeButton.IsEnabled = !busy;
