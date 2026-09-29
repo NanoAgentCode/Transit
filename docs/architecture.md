@@ -4,6 +4,8 @@
 
 GitHub Actions 在 Windows 运行构建、行为检查和发布打包，工作流位于 `.github/workflows/build.yml`。
 
+安装版由 `scripts/build-installer.ps1` 调用 `dotnet publish` 与 Inno Setup，脚本位于 `installer/RepoTransit.iss`；`.github/workflows/installer.yml` 在标签或手动触发时上传安装包。详见 [安装版说明](installer.md)。
+
 ## 模块
 
 | 位置 | 职责 |

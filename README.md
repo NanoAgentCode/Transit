@@ -23,6 +23,17 @@ dotnet publish src/RepoTransit/RepoTransit.csproj -c Release -r win-x64 --self-c
 
 独立版本启动文件为 `publish/RepoTransit.exe`。构建输出与本地凭据不会提交到仓库。
 
+## Windows 安装版
+
+安装 [Inno Setup 6](https://jrsoftware.org/isdl.php) 后，在仓库根目录运行：
+
+```powershell
+.\scripts\build-installer.ps1 -Version 0.1.0
+.\tests\Installer.Tests.ps1 -Version 0.1.0
+```
+
+安装包生成在 `artifacts/installer/RepoTransit-0.1.0-win-x64-setup.exe`，同目录附带 SHA-256 校验文件。安装到当前用户目录，无需管理员权限；安装、升级或卸载前须从托盘菜单退出正在运行的仓渡。卸载仅删除程序和快捷方式，保留 `%APPDATA%/RepoTransit` 配置及 Windows 凭据管理器中的授权信息。构建与验证步骤见 [安装版说明](docs/installer.md)。
+
 同一台电脑一次只运行一个仓渡实例。再次启动时，程序会尝试将已打开的窗口切到前台，然后退出新进程。
 
 启动后主窗口与系统托盘图标同时显示。最小化或点击窗口关闭按钮会将程序隐藏到托盘；双击托盘图标或选择“打开仓渡”可恢复窗口，选择“退出”才会结束程序。
